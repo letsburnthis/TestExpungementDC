@@ -1,11 +1,29 @@
+<!--order of a vue component is the general html, then the javascript with everything in an object? with the general order of data,
+methods, computed. 
+
+Overall setup of this site is that every single question needed to determine eligibility for expungement is in correct order in html.
+Only the first question, next question to be answered, and answered questions are visible (to make it impossible to answer questions
+out of order or ones that are unnecessary based on those previously answered).
+
+Which question to reveal is determined by "paths" hardcoded into the methods section (probably should throw those in data).
+A path is the questions and the associated answers that lead to the possibility of expungement. 
+Every time an answer is selected, a method is run that checks all answered questions/values selected and compares it to a path.
+If the examined path matches the answers so far, the next question on that path is revealed, if not, another path is checked.
+
+If no path matches, a method is run that looks for questions/answers that mean a charge is not eligible for expungement, if there is a match
+a pop up explains why the charge is not eligible.
+
+If the end of a path is reached (meaning all answered questions/answers match the entire path) a method is run that takes the dates that have
+been input and determines when the charge will be eligible for expungement, and displays a pop up with that information. -->
+
 <template>
   <div class="everything">
     
-    
+    <!--the way the methods work requires that all divs be in the correct order in the html. The method only reveals the divs, it doesn't actually place them-->
     <!--msg is supplied by parent App.vue through prop in this files script section-->
     <h1>{{ msg }}</h1>
     <p>Should explain what will be required to fill this out and how to obtain it</p>
-      
+    <!--Every id is the data name+Select so that they can easily be selected in the javascript-->
     <div id="pendingCasesSelect" class="question" @change="stateUpdate('pendingCases')">
       <h1>Do you have any pending cases for a crime other than traffic offenses, disorderly conduct, or an offense that is punishable by a fine only, excluding any ineligible misdemeanor "click for list of ineligable misdemeanors".</h1>
       <form action="">
@@ -31,7 +49,10 @@
 
 
 
-
+    <!--"stateUpdate" is the method that handles revealing the next question. It's made up of two methods.
+    The first hides/resets all answers to questions below the answered question.
+    The second reveals the next question in the current path.
+    The method knows the current position because statusUpdate passes in a string of the name of the data variable that it modifies when answered-->
     <div id="felonySelect" class="question" style="display: none" @change="stateUpdate('felony')">
       <h1>Was the crime a felony? Please select one.</h1>
       <form action="">
@@ -43,16 +64,17 @@
     </div>
 
 
-
+    <!--creates a "searchable" list. all values always exist but are hidden unless the users input letters are contained in the items in the list-->
     <div id="selectedCrimeSelect" class="question" style="display: none" >
         
       <p>Please search the list for the crime. If it on the list, select it. If it is not on the list, select "CRIME NOT IN LIST".</p>
       <br>
       <div class="dropdown" >
+        <!--v-model is how vue connects variables in javascript to the html? trim gets rid of white space in input value-->
         <input v-model.trim="inputValue"  class="dropdown-input" type="text" placeholder="Search ineligible misdemeaners" />
         <div class="dropdown-list" @click="stateUpdate('selectedCrime')">
               
-              
+          <!--v-show only makes visible when conditions are met. itemVisible is a method-->
           <div @click="selectCrime(item)" v-show="itemVisible(item) && inputValue !=''" v-for="item of ineligibleMisdemeanor" :key="item" class="dropdown-item">
             {{item}}
           </div>
@@ -124,6 +146,7 @@
       </form>
     </div>
 
+    <!--built in browser calendar? runs stateUpdate when a button is clicked-->
     <div id="convictedFailureToAppearPaperDateSelect" class="question" style="display: none" >
       <h1>Please enter the date you were last "on paper" for Failure to Appear. Click "Done" when date is correct.</h1>
       <input type="date"  name="convictedFailureToAppearPaperDate" v-model = "convictedFailureToAppearPaperDate"><br>
@@ -295,7 +318,7 @@ export default {
       convictedFailureToAppear:"",
       convictedFailureToAppearPaperDate:"",
 
-      //put array in seperate json because it is giant and makes it hard to find things in code
+      //put array in seperate json because original was giant and made it hard to find things in code
       //real lists/legal term from DC 16-801 definitions
       ineligibleMisdemeanor:require("../assets/ineligibleMisdemeanors.json"),
       eligibleFelonies:["failure to appear (§ 23-1327)"],
@@ -320,20 +343,12 @@ export default {
     }
   },
   methods:{
-    //mainly keeping around because knowing how to do this could come in handy
-    //convicted methods
-      //wasConvicted(){
-        //if (this.convicted == "no"){
-         // document.getElementById("paperedSelect").style.display = "none";
-       // }
-       // else{
-        //  document.getElementById("paperedSelect").style.display = "block";
-          
-       // }
-     // },
+   
 
 
     //search methods
+    //loop exists in v-for in template section. takes every "item" in array, one at a time. makes it lowercase
+    //makes user input lowercase, and if userinput is in item, displays item. otherwise item remains invisible because of the v-show conditions
     itemVisible (item) {
       let currentName = item.toLowerCase()
       let currentInput = this.inputValue.toLowerCase()
@@ -351,13 +366,16 @@ export default {
     
 
 
-    //papered methods
+   
 
 
     //decided it would be easier create a single method that is called on every button change that checks the state of buttons to see if there are any combinations that determine expugeability
     
     
-   
+   //runs anytime an answer is changed. on a high level it sets all questions that come after the currently answered question to invisible
+   //and set the answers to "". it then determines what question comes next and displays it. The reason for the reseting of questions
+   //is it allows a user to go back if they have made a mistake without having to completely reset the page/start over. They can go to where the
+   //mistake occured and all answers above that one are preserved (since this is set up as a logical tree, changing an answer only impact questions that come after).
     stateUpdate(changedQuestion){
       this.resetBelow(changedQuestion);
       this.displayNext();
@@ -365,7 +383,8 @@ export default {
 
 
 
-
+    //compares current position (passed in when an answer is selected) to an array of all questions in the same order as they exist in the html
+    //it then sets all entries in the array after the current one to display "none" and sets associeted data variables to ""
     resetBelow(currentPositionName){
       //this needs to match the allDiv in displayNext I think since position matters (should probably create a master list in data to  make life easier)
       var allDiv=[[this.pendingCases,"pendingCases"], 
@@ -393,7 +412,7 @@ export default {
       
       var currentPosition;
       var i=0;
-      //finds current position in list of divs
+      //finds current position in list of divs by basically looking at each entry in the array and counting until it finds one that matches
       for (currentPosition of allDiv){
         
         if (currentPositionName == currentPosition[1]){
@@ -405,6 +424,7 @@ export default {
         }
       }
       //sets all divs (questions) below current div to "none" (making them not exist) and sets the answer values associeted to those divs to ""
+      //then takes the previously found position(i) and iterates through the list moving to the next item in the array until it hits the end of the array
       while(i < allDiv.length){
      
         var id = allDiv[i][1]+"Select"
@@ -753,6 +773,7 @@ export default {
 
 
     //Do I want this to run automatically or do I want the user to opt into it if it's an option?
+    //currently runs at the end of a path if conviction = "no" which makes sense since as long as that is true, this is an option
     innocenceAnalysis(){
         console.log(this.caseTerminatedDate);
         var caseTerminated = new Date(this.caseTerminatedDate);
@@ -761,7 +782,7 @@ export default {
         console.log(standardChangeDate);
         var standardChangeDateString = standardChangeDate.toDateString();
         var innocenceMessage = "";
-        
+        //could make this cleaner but honestly it just needs to work, not be elegant
         if (this.pendingCases == "yes"){
           if (standardChangeDate<=new Date()){
             this.innocenceMessage ="This charge may be expunged by 'Clear and Convincing Evidence under statute 16-802'. There may be other grounds for expunging this charge after the pending case is closed, but that cannot be determined until there is an outcome to the pending case.";
@@ -874,6 +895,7 @@ export default {
         //compares latest date to current date and notifies if eligible for expungment or when record will be eligible
         
         //took out check for this.caseTerminatedDate != "" for some reason this seemed to be changing that value to "true" after the check????
+        //which was impacting the innocense Analysis
         if( this.deferredSentencingAgreement != "yes" && this.convicted == "no"){
           console.log(this.caseTerminatedDate);
           this.innocenceAnalysis();

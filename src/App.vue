@@ -1,3 +1,5 @@
+<!--Mainn app, most of the actual code is in components folder-->
+
 <template>
   <div id="app">
     
