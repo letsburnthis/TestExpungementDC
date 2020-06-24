@@ -8,6 +8,7 @@ https://www.dccourts.gov/services/criminal-matters/sealing-criminal-records
 ## Project setup
 ```
 git clone https://github.com/letsburnthis/TestExpungementDC
+```
 
 ```
 npm install
