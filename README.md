@@ -1,4 +1,5 @@
 # expenguementTest
+The ultimate goal is to create a site that will enable people to determine if a charge in D.C. is eligible for expungement without the need to talk to an attorney. This is currently just a proof of concept, but the mechanics are mostly functional. 
 
 ## Project setup
 ```
@@ -10,15 +11,4 @@ npm install
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
