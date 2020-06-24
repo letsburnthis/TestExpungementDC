@@ -754,10 +754,13 @@ export default {
 
     //Do I want this to run automatically or do I want the user to opt into it if it's an option?
     innocenceAnalysis(){
-      
+        console.log(this.caseTerminatedDate);
         var caseTerminated = new Date(this.caseTerminatedDate);
+        console.log(caseTerminated);
         var standardChangeDate = new Date(caseTerminated.setFullYear(caseTerminated.getFullYear()+4));
+        console.log(standardChangeDate);
         var innocenceMessage = ""
+        
         if (this.pendingCases == "yes"){
           if (standardChangeDate<=new Date()){
             this.innocenceMessage ="This charge may be expunged by 'Clear and Convincing Evidence under statute 16-802'. There may be other grounds for expunging this charge after the pending case is closed, but that cannot be determined until there is an outcome to the pending case.";
@@ -794,7 +797,6 @@ export default {
       //checks status of previous entries to check what to do (currently runs same program as long as any of these sets of requirements are met)
       //felony, non-conviction
       console.log("Starting expungement analysis");
-      console.log(this.pendingCases,this.convicted, this.felony, this.selectedCrime, this.caseTerminatedDate);
       //if((this.pendingCases == "no" && this.convicted == "no" && this.felony == "yes" && this.failureToAppear == "no" 
       // && this.offPapersDateExp !="" )
       //||
@@ -843,9 +845,9 @@ export default {
         if(this.offPapersDateExp == ""){
           this.offPapersDateExp = "1990-01-01";
         }
-        //if(this.caseTerminatedDate == ""){
-        //  this.caseTerminatedDate = "1990-01-01";
-        //}
+        if(this.caseTerminatedDate == ""){
+          this.caseTerminatedDate = "1990-01-01";
+        }
         
        
         
@@ -856,7 +858,9 @@ export default {
         console.log("starting numbering of days");
         var offPapersExp = new Date(this.offPapersDateExp);
         var expungeableDate = new Date(offPapersExp.setFullYear(offPapersExp.getFullYear()+yearsReqForExp));
+        console.log(this.caseTerminatedDate);
         var caseTerminated = new Date(this.caseTerminatedDate);
+        console.log(this.caseTerminatedDate);
         var expungeableTerminatedDate = new Date(caseTerminated.setFullYear(caseTerminated.getFullYear()+yearsReqForExp));
         var offPapersMisExp= new Date(this.offPapersDateMis);
         var expungeableMisDate = new Date(offPapersMisExp.setFullYear(offPapersMisExp.getFullYear()+5));
@@ -867,14 +871,22 @@ export default {
         var maximumDate=new Date(Math.max.apply(null, dates));
         //compares latest date to current date and notifies if eligible for expungment or when record will be eligible
         
-        if(this.caseTerminatedDate =! "" && this.deferredSentencingAgreement != "yes" && this.convicted == "no"){
+        //took out check for this.caseTerminatedDate != "" for some reason this seemed to be changing that value to "true" after the check????
+        if( this.deferredSentencingAgreement != "yes" && this.convicted == "no"){
+          console.log(this.caseTerminatedDate);
           this.innocenceAnalysis();
           if (maximumDate > new Date()){
-          alert("This record will be eligible for expungement "+maximumDate+"."+" Another method of expungement available is statute 16-802. "+this.innocenceMessage);
+          alert("This record will be eligible for expungement "+maximumDate+"."+
+          "\r\n"+
+          "\r\n"+
+          "Another method of expungement available is statute 16-802. "+this.innocenceMessage);
         
           }
           else{
-            alert("This record is eligible for expungement."+" Another method of expungement available is statute 16-802. "+this.innocenceMessage)
+            alert("This record is eligible for expungement."+
+            "\r\n"+
+            "\r\n"+
+            "Another method of expungement available is statute 16-802. "+this.innocenceMessage)
           
          };
         }
