@@ -759,7 +759,8 @@ export default {
         console.log(caseTerminated);
         var standardChangeDate = new Date(caseTerminated.setFullYear(caseTerminated.getFullYear()+4));
         console.log(standardChangeDate);
-        var innocenceMessage = ""
+        var standardChangeDateString = standardChangeDate.toDateString();
+        var innocenceMessage = "";
         
         if (this.pendingCases == "yes"){
           if (standardChangeDate<=new Date()){
@@ -768,7 +769,7 @@ export default {
           };
         
           if (standardChangeDate>new Date()){
-            this.innocenceMessage ="This charge may be expunged by a 'preponderance of the Evidence under statute 16-802' until "+standardChangeDate+" when the standard will change to 'Clear and Convincing Evidence'. There may be other grounds for expunging this charge after the pending case is closed, but that cannot be determined until there is an outcome to the pending case.";
+            this.innocenceMessage ="This charge may be expunged by a 'preponderance of the Evidence under statute 16-802' until "+standardChangeDateString+" when the standard will change to 'Clear and Convincing Evidence'. There may be other grounds for expunging this charge after the pending case is closed, but that cannot be determined until there is an outcome to the pending case.";
           }
 
         }
@@ -778,7 +779,7 @@ export default {
          
           };
           if (standardChangeDate>new Date()){
-            this.innocenceMessage ="This charge may be expunged by a 'preponderance of the Evidence under statute 16-802' until "+standardChangeDate+" when the standard will change to 'Clear and Convincing Evidence'.";
+            this.innocenceMessage ="This charge may be expunged by a 'preponderance of the Evidence under statute 16-802' until "+standardChangeDateString+" when the standard will change to 'Clear and Convincing Evidence'.";
         
          
           }
@@ -869,6 +870,7 @@ export default {
         var dates = [expungeableDate, expungeableMisDate, expungeableFelDate, expungeableTerminatedDate];
         //finds latest date
         var maximumDate=new Date(Math.max.apply(null, dates));
+        var maximumDateString = maximumDate.toDateString();
         //compares latest date to current date and notifies if eligible for expungment or when record will be eligible
         
         //took out check for this.caseTerminatedDate != "" for some reason this seemed to be changing that value to "true" after the check????
@@ -876,7 +878,7 @@ export default {
           console.log(this.caseTerminatedDate);
           this.innocenceAnalysis();
           if (maximumDate > new Date()){
-          alert("This record will be eligible for expungement "+maximumDate+"."+
+          alert("This record will be eligible for expungement "+maximumDateString+"."+
           "\r\n"+
           "\r\n"+
           "Another method of expungement available is statute 16-802. "+this.innocenceMessage);
@@ -893,7 +895,7 @@ export default {
         
         else{
           if (maximumDate > new Date()){
-            alert("This record will be eligible for expungement "+maximumDate+".");
+            alert("This record will be eligible for expungement "+maximumDateString+".");
         
           }
           else{
