@@ -255,6 +255,13 @@ been input and determines when the charge will be eligible for expungement, and 
       <br>
       <br>
       <br>
+      <div id="example-1" style="display: none">
+        <button v-on:click="runTest()">run test</button>
+      </div>
+
+
+
+
 
     </div>
 
@@ -765,7 +772,7 @@ export default {
       }
       //misdemeanor conviction extra checks (might split these into two so people know why exactly they are ineligible)
       if(this.seriousConviction == "yes" || this.convictionAfter == "yes") {
-        alert("Current laws do not allow you to expunge a misdemeanor conviction if you have ever been convicted of a serious offence or if you have been convicted of an offence after the charge you are attempting to expunge.")
+        alert("Current laws do not allow you to expunge a conviction if you have ever been convicted of a serious offence or if you have been convicted of an offence after the charge you are attempting to expunge.")
       }
 
     },
@@ -779,6 +786,8 @@ export default {
         var caseTerminated = new Date(this.caseTerminatedDate);
         console.log(caseTerminated);
         var standardChangeDate = new Date(caseTerminated.setFullYear(caseTerminated.getFullYear()+4));
+        //need to add one day to give correct date
+        standardChangeDate.setDate(standardChangeDate.getDate() +1);
         console.log(standardChangeDate);
         var standardChangeDateString = standardChangeDate.toDateString();
         var innocenceMessage = "";
@@ -853,7 +862,7 @@ export default {
         if(this.papered == "" && this.convicted == "no"){
           var yearsReqForExp = 2
         };
-         //eligible misdemeanor, conviction time
+         //eligible misdemeanor, conviction time (this.papered == "" means that the question wasn't asked. when would this be the case???)
         if(this.papered == "" && this.convicted == "yes"){
           var yearsReqForExp = 8
         };
@@ -891,6 +900,9 @@ export default {
         var dates = [expungeableDate, expungeableMisDate, expungeableFelDate, expungeableTerminatedDate];
         //finds latest date
         var maximumDate=new Date(Math.max.apply(null, dates));
+        //dates are one behind actual day eligible for expungement. adding one day to make the responses correct
+        maximumDate.setDate(maximumDate.getDate() +1);
+
         var maximumDateString = maximumDate.toDateString();
         //compares latest date to current date and notifies if eligible for expungment or when record will be eligible
         
@@ -928,6 +940,225 @@ export default {
         }
 
       } 
+    },
+
+
+
+
+
+    //creating a way to test and make sure I don't break anything. easiest way is to probably reuse my paths code to cycle through every possible combination of answers
+    //might need a way to deal with popups that are created. will also probably have to run everything manually since there will be no on clicks etc.
+    //the test code will also be a good way for others to understand how the program runs at a high level since it will be code manipulating code.
+
+
+    runTest(){
+      var innocence = [["pendingCases", "yes"], ["convicted", "no"], ["caseTerminatedDate","!"]];
+      //need to add in for every possibilty other wise gonn have to add a lot to the check function since it currently works by checking for an entire path being completed
+      //Felonies
+      //felony non BRA
+      var felonyNonBRA1 = [["pendingCases", "no"],["convicted","no"], ["felony","yes"], ["failureToAppear", "no"],
+      ["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "yes" ],["offPapersDateMis","!"],["otherFel","yes"],["offPapersDateFel","!"],["caseTerminatedDate","!"]];
+
+      var felonyNonBRA2 = [["pendingCases", "no"],["convicted","no"], ["felony","yes"], ["failureToAppear", "no"],
+      ["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "yes" ],["offPapersDateMis","!"],["otherFel","no"],["caseTerminatedDate","!"]];
+
+      var felonyNonBRA3 = [["pendingCases", "no"],["convicted","no"], ["felony","yes"], ["failureToAppear", "no"],
+      ["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "no" ],["otherFel","yes"],["offPapersDateFel","!"],["caseTerminatedDate","!"]];
+
+      var felonyNonBRA4 = [["pendingCases", "no"],["convicted","no"], ["felony","yes"], ["failureToAppear", "no"],
+      ["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "no" ],["otherFel","no"],["caseTerminatedDate","!"]];
+
+      //felony BRA non conviction no differment
+      var felonyBRANoConvictionNoDiff1 = [["pendingCases", "no"],["convicted","no"],["felony","yes"], ["failureToAppear", "yes"],
+      ["deferredSentencingAgreement", "no"],["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "yes" ],["offPapersDateMis","!"],
+      ["otherFel","yes"],["offPapersDateFel","!"],["caseTerminatedDate","!"]];
+
+      var felonyBRANoConvictionNoDiff2 = [["pendingCases", "no"],["convicted","no"],["felony","yes"], ["failureToAppear", "yes"],
+      ["deferredSentencingAgreement", "no"],["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "no" ],
+      ["otherFel","yes"],["offPapersDateFel","!"],["caseTerminatedDate","!"]];
+
+      var felonyBRANoConvictionNoDiff3 = [["pendingCases", "no"],["convicted","no"],["felony","yes"], ["failureToAppear", "yes"],
+      ["deferredSentencingAgreement", "no"],["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "yes" ],["offPapersDateMis","!"],
+      ["otherFel","no"],["caseTerminatedDate","!"]];
+
+      var felonyBRANoConvictionNoDiff4 = [["pendingCases", "no"],["convicted","no"],["felony","yes"], ["failureToAppear", "yes"],
+      ["deferredSentencingAgreement", "no"],["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "no" ],
+      ["otherFel","no"],["caseTerminatedDate","!"]];
+
+      
+
+
+
+      //felony BRA non conviction with differment (can you use innocence analysis if non-conviction was for differment?)
+      var felonyBRANoConvictionDiff1 = [["pendingCases", "no"],["convicted","no"],["felony","yes"], ["failureToAppear", "yes"],
+      ["deferredSentencingAgreement", "yes"],["convictionAfter", "no"],["seriousConviction", "no"],["papered", "!"], ["offPapersDateExp","!"], 
+      ["otherMis", "yes" ],["offPapersDateMis","!"],["otherFel","yes"],["offPapersDateFel","!"]];
+
+      var felonyBRANoConvictionDiff2 = [["pendingCases", "no"],["convicted","no"],["felony","yes"], ["failureToAppear", "yes"],
+      ["deferredSentencingAgreement", "yes"],["convictionAfter", "no"],["seriousConviction", "no"],["papered", "!"], ["offPapersDateExp","!"], 
+      ["otherMis", "no" ],["otherFel","yes"],["offPapersDateFel","!"]];
+
+      var felonyBRANoConvictionDiff3 = [["pendingCases", "no"],["convicted","no"],["felony","yes"], ["failureToAppear", "yes"],
+      ["deferredSentencingAgreement", "yes"],["convictionAfter", "no"],["seriousConviction", "no"],["papered", "!"], ["offPapersDateExp","!"], 
+      ["otherMis", "yes" ],["offPapersDateMis","!"],["otherFel","no"]];
+
+      var felonyBRANoConvictionDiff4 = [["pendingCases", "no"],["convicted","no"],["felony","yes"], ["failureToAppear", "yes"],
+      ["deferredSentencingAgreement", "yes"],["convictionAfter", "no"],["seriousConviction", "no"],["papered", "!"], ["offPapersDateExp","!"], 
+      ["otherMis", "no" ],["otherFel","no"]];
+
+
+      //felony BRA conviction
+      var felonyBRAConviction1 = [["pendingCases", "no"],["convicted","yes"],["felony","yes"], ["failureToAppear", "yes"],
+      ["convictionAfter", "no"],["seriousConviction", "no"],["offPapersDateExp","!"]];
+
+      //Misdemeanors
+
+      //misdeanor eligible non-conviction no differement
+      var eligibleNonConvictionNoDiff1 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "CRIME NOT IN LIST"],["deferredSentencingAgreement", "no"],["otherMis", "yes" ],["offPapersDateMis","!"],
+      ["otherFel","yes"],["offPapersDateFel","!"],["caseTerminatedDate","!"]];
+
+      var eligibleNonConvictionNoDiff2 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "CRIME NOT IN LIST"],["deferredSentencingAgreement", "no"],["otherMis", "no" ],
+      ["otherFel","yes"],["offPapersDateFel","!"],["caseTerminatedDate","!"]];
+
+      var eligibleNonConvictionNoDiff3 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "CRIME NOT IN LIST"],["deferredSentencingAgreement", "no"],["otherMis", "yes" ],["offPapersDateMis","!"],
+      ["otherFel","no"],["caseTerminatedDate","!"]];
+
+      var eligibleNonConvictionNoDiff4 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "CRIME NOT IN LIST"],["deferredSentencingAgreement", "no"],["otherMis", "no" ],
+      ["otherFel","no"],["caseTerminatedDate","!"]];
+
+
+      //misdeanor eligible non-conviction with differement
+      var eligibleNonConvictionDiff1 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "CRIME NOT IN LIST"],["deferredSentencingAgreement", "yes"],["convictionAfter", "no"],["seriousConviction", "no"],
+      ["otherMis", "yes" ],["offPapersDateMis","!"],["caseTerminatedDate","!"]];
+
+      var eligibleNonConvictionDiff2 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "CRIME NOT IN LIST"],["deferredSentencingAgreement", "yes"],["convictionAfter", "no"],["seriousConviction", "no"],
+      ["otherMis", "no" ],,["caseTerminatedDate","!"]];
+
+      
+
+      //misdeanor eligible conviction 
+      //NEED TO CHECK THIS ONE. why would a misdemeanor conviction be eligible immediatly but a non-conviction not????? need to read actual law or talk to someone
+      //CHECK THIS ONE AGAINST ACTUAL TEXT OF LAW!!!!!!!!!!
+      var eligibleConviction1 = [["pendingCases", "no"],["convicted","yes"],["felony","no"], 
+      ["selectedCrime", "CRIME NOT IN LIST"],["convictionAfter", "no"],["seriousConviction", "no"],["convictedFailureToAppear","no"]];
+
+      //misdemeanor eligible conviction past BRA
+      var eligibleConvictionPastBRA1 = [["pendingCases", "no"],["convicted","yes"],["felony","no"], 
+      ["selectedCrime", "CRIME NOT IN LIST"],["convictionAfter", "no"],["seriousConviction", "no"],["convictedFailureToAppear","yes"],
+      ["convictedFailureToAppearPaperDate","!"],["offPapersDateMis","!"]];
+
+      //misdemeanor ineligible non-conviction no differment
+      var inelgibleNonConvictionNoDiff1 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "!"], ["deferredSentencingAgreement", "no"],["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "yes" ],
+      ["offPapersDateMis","!"],["otherFel","yes"],["offPapersDateFel","!"],["caseTerminatedDate","!"]];
+
+       var inelgibleNonConvictionNoDiff2 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "!"], ["deferredSentencingAgreement", "no"],["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "no" ],
+      ["otherFel","yes"],["offPapersDateFel","!"],["caseTerminatedDate","!"]];
+
+       var inelgibleNonConvictionNoDiff3 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "!"], ["deferredSentencingAgreement", "no"],["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "yes" ],
+      ["offPapersDateMis","!"],["otherFel","no"],["caseTerminatedDate","!"]];
+
+       var inelgibleNonConvictionNoDiff4 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "!"], ["deferredSentencingAgreement", "no"],["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "no" ],
+      ["otherFel","no"],["caseTerminatedDate","!"]];
+
+      //misdemeanor ineligible non-conviction with differment
+      //why ask about any past felonies if they block it anyways. and what about BRA???
+     var inelgibleNonConvictionWithDiff1 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "!"], ["deferredSentencingAgreement", "yes"],["convictionAfter", "no"],["seriousConviction", "no"],
+      ["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "yes" ],["offPapersDateMis","!"],["otherFel","yes"],["offPapersDateFel","!"]];
+
+      var inelgibleNonConvictionWithDiff2 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "!"], ["deferredSentencingAgreement", "yes"],["convictionAfter", "no"],["seriousConviction", "no"],
+      ["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "no" ],["otherFel","yes"],["offPapersDateFel","!"]];
+
+      var inelgibleNonConvictionWithDiff3 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "!"], ["deferredSentencingAgreement", "yes"],["convictionAfter", "no"],["seriousConviction", "no"],
+      ["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "yes" ],["offPapersDateMis","!"],["otherFel","no"]];
+
+      var inelgibleNonConvictionWithDiff4 = [["pendingCases", "no"],["convicted","no"],["felony","no"], 
+      ["selectedCrime", "!"], ["deferredSentencingAgreement", "yes"],["convictionAfter", "no"],["seriousConviction", "no"],
+      ["papered", "!"], ["offPapersDateExp","!"], ["otherMis", "no" ],["otherFel","no"]];
+      
+
+
+      
+
+
+      //this needs to match the allDiv in  resetBelow I think since position matters (should probably create a master list in data to  make life easier)
+      var allDiv=[[this.pendingCases,"pendingCases"], [this.convicted, "convicted"],[this.felony,"felony"],  [this.selectedCrime,"selectedCrime"],
+      [this.failureToAppear, "failureToAppear"],[this.deferredSentencingAgreement,"deferredSentencingAgreement"], [this.convictionAfter, "convictionAfter"],
+      [this.seriousConviction, "seriousConviction"],[this.convictedFailureToAppear, "convictedFailureToAppear"],[this.convictedFailureToAppearPaperDate, "convictedFailureToAppearPaperDate"] ,
+      [this.papered,"papered"], [this.offPapersDateExp,"offPapersDateExp"], [this.otherMis,"otherMis"],
+      [this.offPapersDateMis,"offPapersDateMis"], [this.otherFel,"otherFel"], [this.offPapersDateFel,"offPapersDateFel"],
+      [this.caseTerminatedDate,"caseTerminatedDate"]];
+
+      //might add something to move path currently on to first in list (I don't think optomization is super important in this app but maybe)
+      //though, moving path currently in use could be useful in determining which analysis program to run... rather than checking the state of the user selections
+      
+
+      //all paths listed in this array
+      var allPaths = 
+      [innocence, 
+      felonyNonBRA1, felonyNonBRA2,felonyNonBRA3,felonyNonBRA4,
+      felonyBRANoConvictionNoDiff1,felonyBRANoConvictionNoDiff2,felonyBRANoConvictionNoDiff3,felonyBRANoConvictionNoDiff4,
+      felonyBRANoConvictionDiff1,felonyBRANoConvictionDiff2,felonyBRANoConvictionDiff3,felonyBRANoConvictionDiff4,
+      felonyBRAConviction1, 
+      eligibleNonConvictionNoDiff1,eligibleNonConvictionNoDiff2,eligibleNonConvictionNoDiff3,eligibleNonConvictionNoDiff4,
+      eligibleNonConvictionDiff1,eligibleNonConvictionDiff2,
+      eligibleConviction1,
+      eligibleConvictionPastBRA1,
+      inelgibleNonConvictionNoDiff1,inelgibleNonConvictionNoDiff2,inelgibleNonConvictionNoDiff3,inelgibleNonConvictionNoDiff4,
+      inelgibleNonConvictionWithDiff1,inelgibleNonConvictionWithDiff2,inelgibleNonConvictionWithDiff3,inelgibleNonConvictionWithDiff4]
+
+      //will take each path and set the data values to them and then run the analysis program to ensure the analysis reaches the correct conclusion.
+      //will then list whether a particular path passed or failed and possible how it failed? timeout v wrong answer etc.
+      console.log("loaded all paths");
+      //runs on each path
+      var path;
+     
+      for (path of allPaths){
+        console.log("checking path "+path);
+        var i = 0;
+
+        while (i< path.length){
+          console.log("starting loop through path");
+          //looks at the "answer" and if it is an "!" it converts it to a date otherwise leaves it alone
+          var answer = "";
+          console.log("about to check "+path[i][0]);
+          if(path[i][1] == "!"){
+            answer = "01/01/2010";
+          }
+          else{
+            console.log("setting answer to "+path[i][1]+" which is a "+ typeof(path[i][1]));
+            answer = path[i][1];
+            console.log("set answer to "+path[i][1]);
+          }
+          //creates a string that will be run as a command setting the data to the correct value
+          var desiredInput = "this."+path[i][0]+"= '"+answer+"'";
+          console.log("created string "+ desiredInput);
+          eval(desiredInput);
+          console.log("set data for "+path[i][0]);
+          //all data should now be set to the correct value
+          //runs function that checks answered questions and either displays next question or runs function to return an alert with expungeability info
+          this.displayNext();
+
+          i=i+1;
+        }
+       
+      }
+
+
+
+
     }
       
     
